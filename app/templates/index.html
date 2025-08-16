@@ -1,14 +1,22 @@
-<!-- templates/index.html -->
 {% extends "base.html" %}
 
-{% block title %}Gemini AI Chat{% endblock %}
+{% block title %}Multi-Model AI Chat{% endblock %}
 
 {% block content %}
+<div class="model-selector-container">
+    <label for="modelSelector">Choose a Model:</label>
+    <select id="modelSelector">
+        {% for model in models %}
+            <option value="{{ model }}">{{ model | capitalize }}</option>
+        {% endfor %}
+    </select>
+</div>
+
 <div class="chat-container">
     <div id="conversationHistory">
         <!-- Example of how a message will look -->
         <div class="message model">
-            Hello! How can I help you today?
+            Hello! Select a model and ask me anything.
         </div>
     </div>
 
@@ -21,7 +29,7 @@
     </div>
 
     <div class="chat-input-area">
-        <textarea id="promptInput" placeholder="Message Gemini..." rows="1"></textarea>
+        <textarea id="promptInput" placeholder="Message..." rows="1"></textarea>
         <button id="generateButton" title="Send Message">
             <!-- SVG Icon for Send -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -39,49 +47,34 @@
         const loadingDiv = document.getElementById('loading');
         const errorContainer = document.getElementById('errorContainer');
         const errorMessage = document.getElementById('errorMessage');
+        const modelSelector = document.getElementById('modelSelector');
 
-        // This JS automatically handles resizing the textarea as you type
         promptInput.addEventListener('input', () => {
             promptInput.style.height = 'auto';
             promptInput.style.height = (promptInput.scrollHeight) + 'px';
         });
 
-        // Your existing JavaScript for chat functionality goes here.
-        // It does not need to be changed.
-        // I've copied it below for completeness.
-
+        let isRequestInProgress = false;
         let conversation = [];
 
-        // Function to display a message, now with better HTML parsing
-        function displayMessage(role, text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', role);
-
-            // A more robust way to handle markdown-like text from Gemini
-            // This is a simplified parser
-            let formattedText = text
-                .replace(/</g, "<").replace(/>/g, ">") // Sanitize HTML tags
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-                .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italics
-                .replace(/`([^`]+)`/g, '<code>$1</code>') // Inline code
-                .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>') // Code blocks
-                .replace(/\n/g, '<br>'); // Newlines
-            //below line removed as 'You:' and 'Gemini:' is not required
-            //messageDiv.innerHTML = `<strong>${role === 'user' ? 'You' : 'Gemini'}:</strong><br>${formattedText}`;
-            messageDiv.innerHTML = formattedText;
-            conversationHistoryDiv.appendChild(messageDiv);
-            conversationHistoryDiv.scrollTop = conversationHistoryDiv.scrollHeight;
-        }
-
         async function handleSend() {
+            if (isRequestInProgress) {
+                return;
+            }
+
             const prompt = promptInput.value.trim();
+            const selectedModel = modelSelector.value;
             if (!prompt) return;
 
+            isRequestInProgress = true;
+
+            // Optimistically display the user's message
             displayMessage('user', prompt);
-            conversation.push({ role: 'user', parts: [{ text: prompt }] });
+            
+            const currentHistory = conversation;
 
             promptInput.value = '';
-            promptInput.style.height = 'auto'; // Reset height
+            promptInput.style.height = 'auto';
             errorContainer.classList.add('hidden');
             errorMessage.textContent = '';
             loadingDiv.classList.remove('hidden');
@@ -92,32 +85,58 @@
                 const response = await fetch('/generate_text', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt, history: conversation })
+                    body: JSON.stringify({ 
+                        prompt: prompt, 
+                        history: currentHistory, 
+                        model: selectedModel
+                    })
                 });
 
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/login';
-                        return;
-                    }
+                    if (response.status === 401) { window.location.href = '/login'; return; }
                     const data = await response.json();
                     throw new Error(data.error || 'Something went wrong.');
                 }
 
                 const data = await response.json();
+                
+                conversationHistoryDiv.lastChild.remove();
+                
+                const lastUserMessage = data.history[data.history.length - 2];
+                displayMessage(lastUserMessage.role, lastUserMessage.parts[0].text);
+                
                 displayMessage('model', data.generated_text);
+                
                 conversation = data.history;
 
             } catch (error) {
                 errorContainer.classList.remove('hidden');
                 errorMessage.textContent = `Error: ${error.message}`;
-                conversation.pop();
+                if(conversationHistoryDiv.lastChild && conversationHistoryDiv.lastChild.classList.contains('user')){
+                    conversationHistoryDiv.lastChild.remove();
+                }
             } finally {
+                isRequestInProgress = false;
                 loadingDiv.classList.add('hidden');
                 generateButton.disabled = false;
                 promptInput.disabled = false;
                 promptInput.focus();
             }
+        }
+
+        function displayMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', role);
+            let formattedText = text
+                .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+                .replace(/\n/g, '<br>');
+            messageDiv.innerHTML = formattedText;
+            conversationHistoryDiv.appendChild(messageDiv);
+            conversationHistoryDiv.scrollTop = conversationHistoryDiv.scrollHeight;
         }
         
         generateButton.addEventListener('click', handleSend);
