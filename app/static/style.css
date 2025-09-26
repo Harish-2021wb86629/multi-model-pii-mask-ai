@@ -1,343 +1,202 @@
-/* static/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Nunito+Sans:wght@400;700&display=swap');
 
-/* --- 1. Global Styles & Variables --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-:root {
-    --bg-color: #f0f2f5;
-    --primary-text: #1c1e21;
-    --secondary-text: #65676b;
-    --container-bg: #ffffff;
-    --border-color: #ced0d4;
-    --primary-accent: #0084ff;
-    --primary-accent-hover: #0073e0;
-
-    --user-msg-bg: #0084ff;
-    --user-msg-text: #ffffff;
-    --model-msg-bg: #e4e6eb;
-    --model-msg-text: #050505;
-
-    --body-font: 'Inter', sans-serif;
-    --border-radius-sm: 8px;
-    --border-radius-md: 16px;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
+/* General Body Styles */
 body {
-    font-family: var(--body-font);
+    font-family: 'Inter', sans-serif;
     margin: 0;
-    background-color: var(--bg-color);
-    color: var(--primary-text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
-    padding-top: 60px; /* Space for fixed navbar */
-}
-
-
-/* --- 2. Main Chat Container --- */
-.chat-container {
-    background-color: var(--container-bg);
-    box-shadow: var(--shadow);
-    border-radius: var(--border-radius-sm);
-    width: 100%;
-    max-width: 800px;
-    height: 85vh; /* Take up most of the vertical space */
+    background-color: #f4f4f9;
+    color: #333;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Important for keeping child elements contained */
+    height: 100vh;
+    overflow: hidden; /* Prevent body scrollbars */
 }
 
+/* Navbar Styles */
+.navbar {
+    font-family: 'Nunito Sans', sans-serif; /* Set navbar font */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #171450; /* Updated BITS Deep Blue */
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700; /* Bolder for Nunito Sans */
+    color: #FFFFFF; /* White text */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo {
+    height: 50px;
+    margin-right: 15px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #FFFFFF; /* White text */
+}
+
+.nav-links a {
+    color: #FFFFFF; /* White text */
+    text-decoration: none;
+    margin-left: 15px;
+    transition: color 0.3s;
+    font-weight: 700; /* Bolder for Nunito Sans */
+}
+
+.nav-links a:hover {
+    color: #FFD100; /* BITS Yellow on hover */
+}
+
+/* --- Main Content Layout --- */
+.content-wrapper {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+/* Chat Container (Left Column) */
+.chat-container {
+    order: 1;
+    flex-grow: 1;
+    width: 100%;
+    margin: 0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Model Selector (Right Column Sidebar) */
+.model-selector-container {
+    order: 2;
+    flex-basis: 280px;
+    flex-shrink: 0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    height: fit-content;
+}
+
+.model-selector-container label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+#modelSelector {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* Alert Styles (If any) */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+.alert-error { background-color: #f8d7da; color: #721c24; }
+.alert-success { background-color: #d4edda; color: #155724; }
+
+/* Conversation History & Messages */
 #conversationHistory {
-    flex-grow: 1; /* Allows this div to take up all available space */
-    overflow-y: auto; /* Enables scrolling for messages */
+    flex-grow: 1;
+    overflow-y: auto;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Space between messages */
+    gap: 15px;
 }
 
-/* Custom Scrollbar for a modern look */
-#conversationHistory::-webkit-scrollbar {
-    width: 6px;
-}
-#conversationHistory::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-#conversationHistory::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
-}
-#conversationHistory::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
-}
-
-
-/* --- 3. Chat Bubbles --- */
 .message {
     padding: 10px 15px;
-    border-radius: var(--border-radius-md);
+    border-radius: 15px;
+    max-width: 80%;
     line-height: 1.5;
-    max-width: 75%;
-    word-wrap: break-word; /* Prevents long words from overflowing */
-}
-
-.message strong {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 4px;
 }
 
 .message.user {
-    background-color: var(--user-msg-bg);
-    color: var(--user-msg-text);
-    align-self: flex-end; /* Aligns to the right */
-    border-bottom-right-radius: var(--border-radius-sm); /* Creates the "tail" effect */
+    background-color: #e9e9eb; /* Neutral grey */
+    color: #1A1A1A; /* Dark text */
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
 }
 
 .message.model {
-    background-color: var(--model-msg-bg);
-    color: var(--model-msg-text);
-    align-self: flex-start; /* Aligns to the left */
-    border-bottom-left-radius: var(--border-radius-sm);
+    background-color: #D6F0FA; /* Lighter BITS Sky Blue */
+    color: #1A1A1A; /* Dark text for readability */
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
 }
 
+/* Loading, Error, and Input Styles */
+#loading, #errorContainer { padding: 20px; text-align: center; }
+.spinner-wrapper { display: flex; justify-content: center; align-items: center; }
+.spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #09f; animation: spin 1s ease infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#errorContainer { color: #721c24; }
+.hidden { display: none; }
 
-/* --- 4. Chat Input Area --- */
 .chat-input-area {
     display: flex;
-    align-items: flex-end;
-    padding: 12px 20px;
-    border-top: 1px solid var(--border-color);
-    background-color: var(--container-bg);
+    align-items: center;
+    padding: 10px 20px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
 }
 
 #promptInput {
     flex-grow: 1;
-    border: none;
-    padding: 12px;
-    font-size: 16px;
-    font-family: var(--body-font);
-    resize: none; /* We handle resize with JS */
-    background-color: transparent;
-    max-height: 150px; /* Limit expansion */
-    overflow-y: auto;
-    outline: none; /* No ugly focus outline */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    resize: none;
+    overflow-y: hidden;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    margin-right: 10px;
 }
 
 #generateButton {
-    background-color: transparent;
+    background-color: #5CCAE8; /* BITS Sky Blue */
     border: none;
-    padding: 8px;
-    margin-left: 10px;
-    border-radius: 50%; /* Makes the button round */
+    padding: 10px;
+    border-radius: 50%;
     cursor: pointer;
     display: flex;
-    align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
-}
-
-#generateButton svg {
-    fill: var(--primary-accent);
-    transition: transform 0.2s ease;
+    align-items: center;
+    transition: background-color 0.3s;
 }
 
 #generateButton:hover {
-    background-color: #f0f0f0;
-}
-
-#generateButton:hover svg {
-    transform: scale(1.1);
+    background-color: #B78A2D; /* BITS Gold on hover */
 }
 
 #generateButton:disabled {
     cursor: not-allowed;
-    background-color: transparent;
+    background-color: #ccc;
 }
 
-#generateButton:disabled svg {
-    fill: #bcc0c4;
-    transform: scale(1);
-}
-
-
-/* --- 5. Loading Spinner & Error Messages --- */
-.spinner-wrapper {
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-}
-.spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--primary-accent);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-#errorContainer {
-    margin: 10px 20px;
-    padding: 10px;
-    background-color: #ffe0e0;
-    border: 1px solid #ffb3b3;
-    color: #cc0000;
-    border-radius: var(--border-radius-sm);
-    text-align: left;
-}
-
-
-/* --- 6. Code Formatting --- */
-pre {
-    background-color: #282c34; /* Dark background for code */
-    color: #abb2bf;
-    padding: 15px;
-    border-radius: var(--border-radius-sm);
-    overflow-x: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    margin: 10px 0;
-}
-.message code {
-    font-family: 'Courier New', Courier, monospace;
-    background-color: rgba(0,0,0,0.08);
-    padding: 2px 5px;
-    border-radius: 4px;
-}
-pre code {
-    background-color: transparent;
-    padding: 0;
-}
-
-
-/* --- 7. Navbar & Auth Pages --- */
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--container-bg);
-    color: var(--primary-text);
-    padding: 0 40px;
-    height: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    box-sizing: border-box;
-    z-index: 1000;
-}
-.nav-brand {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: var(--primary-accent);
-    text-decoration: none;
-}
-.nav-links a, .nav-links span {
-    color: var(--primary-text);
-    font-weight: 500;
-    text-decoration: none;
-    margin-left: 20px;
-}
-.nav-links a:hover {
-    color: var(--primary-accent);
-}
-
-.auth-container {
-    max-width: 400px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: var(--container-bg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
-    border-radius: var(--border-radius-sm);
-}
-.auth-button {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--primary-accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 700;
-    transition: background-color 0.2s ease;
-}
-.auth-button:hover {
-    background-color: var(--primary-accent-hover);
-}
-.form-control {
-    width: 100%;
-    padding: 12px;
-    box-sizing: border-box;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    margin-top: 5px;
-}
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-accent);
-    box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.2);
-}
-.hidden {
-    display: none;
-}
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    text-align: center;
-}
-.alert-success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb;}
-.alert-danger { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb;}
-.alert-info { color: #0c5460; background-color: #d1ecf1; border: 1px solid #bee5eb;}
-.error-message { color: red; font-size: 0.8em; }
-.auth-links { text-align: center; margin-top: 20px; }
-.content-wrapper { width: 90%; max-width: 900px; margin: 0 auto; }
-.form-group { margin-bottom: 15px; }
-.form-group label { font-weight: 500; }
-
-/* Styling for the new model selector */
-.model-selector-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-    background-color: #f0f2f5;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    max-width: 800px;
-    margin: 0 auto 20px auto;
-}
-
-.model-selector-container label {
-    margin-right: 10px;
-    font-weight: 500;
-    color: #333;
-}
-
-#modelSelector {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: #fff;
-}
-
-#modelSelector:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+#generateButton svg {
+    fill: #FFFFFF;
 }
