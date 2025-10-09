@@ -49,6 +49,8 @@ services:
     # This image is still pulled from the public Docker Hub.
     image: postgres:17.5-alpine3.22
     container_name: postgres-db-container
+    ports:
+      - "5432:5432"
     hostname: postgres-db
     env_file:
       - .env
