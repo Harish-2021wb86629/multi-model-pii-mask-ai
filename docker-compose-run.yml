@@ -44,6 +44,13 @@ services:
       - .env
     restart: always
 
+  mistral-service:
+    image: 192.168.223.200:80/bits-mtech/project-mistral-service:latest
+    container_name: mistral-service
+    env_file:
+      - .env
+    restart: always
+
   # 5. The PostgreSQL Database Service (No change needed here)
   postgres-db-service:
     # This image is still pulled from the public Docker Hub.

@@ -21,7 +21,8 @@ JWT_SECRET_KEY = os.environ.get('AUTH_SECRET_KEY')
 
 # --- NEW: Define the URLs for our AI worker services ---
 AI_SERVICE_URLS = {
-    'gemini': os.environ.get('GEMINI_SERVICE_URL')
+    'gemini': os.environ.get('GEMINI_SERVICE_URL'),
+    'mistral': os.environ.get('MISTRAL_SERVICE_URL')
     # In the future, you'll add more:
     # 'openai': os.environ.get('OPENAI_SERVICE_URL')
 }

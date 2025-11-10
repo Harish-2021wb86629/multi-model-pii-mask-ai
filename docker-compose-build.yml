@@ -53,6 +53,14 @@ services:
       - .env
     restart: always
 
+  # --- NEW MISTRAL WORKER SERVICE ---
+  mistral-service:
+    build: ./mistral
+    container_name: mistral-service
+    env_file:
+      - .env
+    restart: always
+
   # 3. The PostgreSQL Database Service
   postgres-db-service:
     # 'image' tells Docker Compose to pull the official postgres image from Docker Hub
