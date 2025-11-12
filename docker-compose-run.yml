@@ -54,7 +54,7 @@ services:
   # 5. The PostgreSQL Database Service (No change needed here)
   postgres-db-service:
     # This image is still pulled from the public Docker Hub.
-    image: postgres:17.5-alpine3.22
+    image: 192.168.223.200:80/bits-mtech/postgres:17.5-alpine3.22
     container_name: postgres-db-container
     ports:
       - "5432:5432"
